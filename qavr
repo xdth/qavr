@@ -73,7 +73,7 @@ function op_success {
   seeya
 }
 
-function compile_and_flashx {
+function compile_and_flash {
   avr-gcc -Wall -Os -mmcu=$qavr_microcontroller -c -o main.o $qavr_file
   avr-gcc -mmcu=$qavr_microcontroller main.o -o main
   avr-objcopy -O ihex -R .eeprom main main.hex
