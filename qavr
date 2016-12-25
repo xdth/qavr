@@ -3,13 +3,13 @@
 # ############################ QuickAVR 0.1 #############################
 #
 # This script will compile a C program, generate an hex file and flash it 
-# to an AVR microcontoller
+# to an AVR microcontroller
 #
 # Usage: 
 # qavr [-d </dev/device>] [-m <microcontroller> ] [-f <file.c>]
 #
 # Example:
-# qavr -d /dev/ttyACM0 -m attiny2313 -f main.c
+# sudo qavr -d /dev/ttyACM0 -m attiny2313 -f main.c
 #
 # Notes:
 # 1. For convenience, add this script to your /usr/bin or alike with
@@ -47,7 +47,7 @@ Mandatory Options:
   -m, --microcontroller
   -f, --file
 
-  Example: qavr -d /dev/ttyACM0 -m attiny2313 -f main.c"
+  Example: sudo qavr -d /dev/ttyACM0 -m attiny2313 -f main.c"
 exit 1
 }
 
@@ -68,7 +68,7 @@ function testcancel {
 }
 
 function op_success {
-  clear
+  #clear
   echo "The operation was concluded successfully"
   seeya
 }
@@ -97,7 +97,7 @@ function qavrgui {
   # Intro
   if (dialog --title " QuickAVR 0.1 " --yesno "
 \nThis script will compile a C program, generate an hex file and \
-flash it to an AVR microcontoller.\n\n
+flash it to an AVR microcontroller.\n\n
 If the parameters on the script are already set, it will be executed now.\n\n\
 Do you want to proceed?" 13 60)  # size of 60x13 characters
   then
