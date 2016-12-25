@@ -8,7 +8,7 @@ Works with arguments to the command or with a GUI.
 
 ![alt tag](http://i.imgur.com/mlgsDKx.png)
 
-![alt tag](http://i.imgur.com/mlgsDKx.png)
-
 ![alt tag](http://i.imgur.com/89ru5bZ.png)
+
+![alt tag](http://i.imgur.com/xJaghgg.png)
 
