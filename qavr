@@ -14,8 +14,9 @@
 # Notes:
 # 1. For convenience, add this script to your /usr/bin or alike with
 #    chmod +x permissions.
-# 2. To see which MCUs are supported: avrdude -c avrisp
-# 2. License: MIT
+# 2. Dependencies: avr-gcc, avr-libc and avrdude
+# 3. To see which MCUs are supported: avrdude -c avrisp
+# 4. License: MIT
 # 3. Author: dth at alterland dot net  -  Brussels, December 25, 2016
 # #######################################################################
 
