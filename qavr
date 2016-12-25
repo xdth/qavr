@@ -1,0 +1,190 @@
+#! /bin/bash
+
+# ############################ QuickAVR 0.1 #############################
+#
+# This script will compile a C program, generate an hex file and flash it 
+# to an AVR microcontoller
+#
+# Usage: 
+# qavr [-d </dev/device>] [-m <microcontroller> ] [-f <file.c>]
+#
+# Example:
+# qavr -d /dev/ttyACM0 -m attiny2313 -f main.c
+#
+# Notes:
+# 1. For convenience, add this script to your /usr/bin or alike with
+#    chmod +x permissions.
+# 2. To see which MCUs are supported: avrdude -c avrisp
+# 2. License: MIT
+# 3. Author: dth at alterland dot net  -  Brussels, December 25, 2016
+# #######################################################################
+
+
+# #######################################################################
+# ## Preloaded microcontrollers
+
+qavr_microcontrollers=(
+   1 "Not in the list"
+   2 "attiny13a"
+   3 "attiny2313"
+   4 "attiny4313"
+   5 "attiny24a"
+   6 "attiny44a"
+   7 "attiny84a"
+   8 "attiny25"
+   9 "attiny45"
+   10 "attiny85"
+)
+
+
+# #######################################################################
+# ## Functions
+
+function help {
+  echo "Usage: qavr [-d </dev/device>] [-m <microcontroller> ] [-f <file.c>]
+Mandatory Options:
+  -d, --device
+  -m, --microcontroller
+  -f, --file
+
+  Example: qavr -d /dev/ttyACM0 -m attiny2313 -f main.c"
+exit 1
+}
+
+function seeya {
+  echo "Thanks for using QuickAVR v1. Have a good day."
+}
+
+function testcancel {
+  if test $? -eq 0
+  then 
+    return
+  else
+    clear
+    echo "The operation was canceled"
+    seeya
+    exit 1
+  fi
+}
+
+function op_success {
+  clear
+  echo "The operation was concluded successfully"
+  seeya
+}
+
+function compile_and_flashx {
+  avr-gcc -Wall -Os -mmcu=$qavr_microcontroller -c -o main.o $qavr_file
+  avr-gcc -mmcu=$qavr_microcontroller main.o -o main
+  avr-objcopy -O ihex -R .eeprom main main.hex
+  avrdude -F -V -c avrisp -p $qavr_microcontroller -P $qavr_device -b 19200 -U flash:w:main.hex
+  rm -rf main main.hex main.o # you might want to save the .hex for simulations, etc
+  op_success
+}
+
+function qavr {
+  # Are all arguments there?
+  if [ -z "$qavr_device" ] || [ -z "$qavr_microcontroller" ] || [ -z "$qavr_file" ]; then 
+   echo "Error: missing argument. All 3 fields are required."; help
+  else
+   # run
+   compile_and_flash
+  fi
+}
+
+# ## "GUI"
+function qavrgui {
+  # Intro
+  if (dialog --title " QuickAVR 0.1 " --yesno "
+\nThis script will compile a C program, generate an hex file and \
+flash it to an AVR microcontoller.\n\n
+If the parameters on the script are already set, it will be executed now.\n\n\
+Do you want to proceed?" 13 60)  # size of 60x13 characters
+  then
+      # Get data      
+      while [ -z "$qavr_device" ]; do
+        qavr_device=$(\
+        dialog --title " Device information " \
+        --backtitle " QuickAVR 0.1 " \
+        --inputbox "Enter device, like /dev/ttyACM0 " 8 60 \
+        3>&1 1>&2 2>&3 3>&- \
+        )
+        testcancel
+      done
+        
+      while [ -z "$qavr_microcontroller" ]; do
+        qavr_microcontroller=$(\
+        dialog --title " Microcontroller information " \
+        --backtitle " QuickAVR 0.1 " \
+        --menu "Choose one of the following options:" 20 40 20 \
+        "${qavr_microcontrollers[@]}" \
+        2>&1 >/dev/tty)
+        testcancel
+      done
+      
+     # If microcontroller is not listed, get user input
+      while [ "$qavr_microcontroller" = "1" ]; do
+        qavr_microcontroller=$(\
+        dialog --title " Choosing a microcontroller " \
+        --backtitle " QuickAVR 0.1 " \
+        --inputbox "Enter MCU name " 8 60 \
+        3>&1 1>&2 2>&3 3>&- \
+        )
+        testcancel
+      done
+
+      while [ -z "$qavr_file" ]; do
+        qavr_file=$(\
+        dialog --title " Choosing a C file " \
+        --backtitle " QuickAVR 0.1 " \
+        --inputbox "Enter file name.c " 8 60 \
+        3>&1 1>&2 2>&3 3>&- \
+        )
+        testcancel
+      done
+  else
+      testcancel
+      exit 1
+  fi
+}
+
+# ## Default if no input
+  # [[ $# -eq 0 ]] && help  # if no input, display help
+    [[ $# -eq 0 ]] && qavrgui # if no input, display gui
+
+
+# #######################################################################
+# ## Main
+
+while [[ $# -gt 0 ]]
+do
+  case "$1" in
+    -d|--device) 
+              qavr_device="$2" 
+              shift 
+              ;;
+
+    -m|--microcontroller) 
+              qavr_microcontroller="$2" 
+              shift 
+              ;;
+    
+    -f|--file) 
+              qavr_file="$2" 
+              shift 
+              ;;
+    
+    -h|--help) 
+              help 
+              shift 
+              ;;
+    *) 
+              echo "qavr: invalid option \""$1"\""
+              echo "Try 'qavr --help' for more information."; exit 1
+  esac
+  shift
+done
+
+
+# ## Where the magic happens
+qavr
